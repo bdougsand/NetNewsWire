@@ -163,11 +163,17 @@ class SceneCoordinator: NSObject, UndoableCommandRunner, UnreadCountProvider {
 	private(set) var showFeedNames = false
 	private(set) var showIcons = false
 
+	var lastFeedIndexPath: IndexPath? {
+		shadowTable.enumerated()
+					.reversed()
+					.first { (i, node) in node.count > 0 }
+					.map { (i, node) in IndexPath(row: node.count-1, section: i)}
+	}
+
 	var prevFeedIndexPath: IndexPath? {
 		guard let indexPath = currentFeedIndexPath else {
-			return nil
+			return lastFeedIndexPath
 		}
-		
 		let prevIndexPath: IndexPath? = {
 			if indexPath.row - 1 < 0 {
 				for i in (0..<indexPath.section).reversed() {
@@ -186,7 +192,7 @@ class SceneCoordinator: NSObject, UndoableCommandRunner, UnreadCountProvider {
 	
 	var nextFeedIndexPath: IndexPath? {
 		guard let indexPath = currentFeedIndexPath else {
-			return nil
+			return IndexPath(row: 0, section: 0)
 		}
 		
 		let nextIndexPath: IndexPath? = {
